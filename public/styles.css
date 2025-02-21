@@ -32,6 +32,14 @@ body {
     position: relative;
 }
 
+.gcash-info {
+    font-size: clamp(12px, 3vw, 14px);
+    color: #4b5563;
+    margin: 0;
+    font-weight: bold;
+    text-align: center;
+}
+
 h1 {
     font-size: clamp(24px, 5vw, 28px);
     color: #6b7280;
