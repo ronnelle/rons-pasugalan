@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RON'S PASUGALAN</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="game-container">
+        <div class="top-bar">
+            <h1>COLOR GAME</h1>
+            <div id="room-code-display" style="display: none;"></div>
+            <button id="reset-game-btn">Reset Game</button>
+            <button id="sound-control-btn">🔊</button>
+        </div>
+        <div class="dice-table">
+            <div class="die" id="die1"></div>
+            <div class="die" id="die2"></div>
+            <div class="die" id="die3"></div>
+        </div>
+        <div class="betting-grid">
+            <div class="color-box" data-color="red">Red</div>
+            <div class="color-box" data-color="yellow">Yellow</div>
+            <div class="color-box" data-color="green">Green</div>
+            <div class="color-box" data-color="blue">Blue</div>
+            <div class="color-box" data-color="white">White</div>
+            <div class="color-box" data-color="pink">Pink</div>
+        </div>
+        <div id="bet-display"></div>
+        <div class="wallet">
+            <p>Coins: <span id="coin-count">1000</span></p>
+            <div class="coin-options">
+                <button class="coin" data-value="10">10</button>
+                <button class="coin" data-value="50">50</button>
+                <button class="coin" data-value="100">100</button>
+            </div>
+        </div>
+        <div class="button-container">
+            <button class="play-btn" id="roll-btn">Roll Dice!</button>
+            <button class="reset-btn" id="reset-btn">Reset Bets</button>
+        </div>
+        <div id="players"></div>
+        <div id="result-message"></div>
+        <div id="join-screen">
+            <input type="text" id="player-name" placeholder="Enter your name" maxlength="12">
+            <input type="number" id="initial-coins" placeholder="Initial coins (e.g., 1000)" min="1" step="1" style="display: none;">
+            <button id="create-room-btn">Create Room</button>
+            <button id="join-room-btn">Join Room</button>
+            <input type="text" id="room-code" placeholder="Enter room code" maxlength="6" style="display: none;">
+            <button id="submit-join-btn" style="display: none;">Join</button>
+        </div>
+    </div>
+
+    <!-- Audio Elements with Empty src -->
+    <audio id="pop-sound" src="/sounds/pop.wav"></audio>
+    <audio id="ting-sound" src="/sounds/ting.wav"></audio>
+    <audio id="background-music" loop src=""></audio>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
