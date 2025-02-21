@@ -1,4 +1,8 @@
-const socket = io();
+const socket = io('https://rons-colorgame.onrender.com', {
+    transports: ['websocket', 'polling']
+});
+
+// Rest of the script.js remains unchanged
 let playerId = null;
 let selectedCoin = null;
 let hasBet = false;
@@ -54,9 +58,9 @@ createRoomBtn.addEventListener("click", () => {
     if (name) {
         createRoomBtn.style.display = "none";
         joinRoomBtn.style.display = "none";
-        initialCoinsInput.style.display = "block"; // Show initial coins input
-        createRoomBtn.style.display = "inline-block"; // Keep create button visible
-        createRoomBtn.addEventListener("click", submitCreateRoom, { once: true }); // Add one-time submit listener
+        initialCoinsInput.style.display = "block";
+        createRoomBtn.style.display = "inline-block";
+        createRoomBtn.addEventListener("click", submitCreateRoom, { once: true });
     } else {
         alert("Please enter a name!");
     }
@@ -64,7 +68,7 @@ createRoomBtn.addEventListener("click", () => {
 
 function submitCreateRoom() {
     const name = playerNameInput.value.trim();
-    const initialCoins = parseInt(initialCoinsInput.value.trim()) || 1000; // Default to 1000 if invalid or empty
+    const initialCoins = parseInt(initialCoinsInput.value.trim()) || 1000;
     if (name) {
         socket.emit('createRoom', { name, initialCoins });
     } else {
@@ -77,7 +81,7 @@ joinRoomBtn.addEventListener("click", () => {
     joinRoomBtn.style.display = "none";
     roomCodeInput.style.display = "block";
     submitJoinBtn.style.display = "block";
-    initialCoinsInput.style.display = "none"; // Hide initial coins for joiners
+    initialCoinsInput.style.display = "none";
 });
 
 submitJoinBtn.addEventListener("click", () => {
@@ -120,7 +124,6 @@ socket.on('serverClosed', (msg) => {
     location.reload();
 });
 
-// Update players and bet display
 socket.on('updatePlayers', ({ players, roomOwner }) => {
     const me = players.find(p => p.id === playerId);
     if (me) {
@@ -157,14 +160,12 @@ socket.on('updatePlayers', ({ players, roomOwner }) => {
     updateBetDisplay(players);
 });
 
-// Dice rolled event
 socket.on('diceRolled', (results) => {
     console.log("Received Dice Results:", results);
     animateDice(results);
     resetBtn.disabled = true;
 });
 
-// Display payout message
 socket.on('payoutMessage', ({ dice, message }) => {
     setTimeout(() => {
         resultMessage.innerHTML = `
@@ -184,7 +185,6 @@ socket.on('payoutMessage', ({ dice, message }) => {
     }, 1000);
 });
 
-// Display game reset notification
 socket.on('gameReset', (msg) => {
     resultMessage.innerHTML = msg;
     resultMessage.style.display = "block";
@@ -194,7 +194,6 @@ socket.on('gameReset', (msg) => {
     }, 3000);
 });
 
-// Error message
 socket.on('error', (msg) => {
     alert(msg);
 });
@@ -276,7 +275,6 @@ function toggleSound() {
     tingSound.muted = isMuted;
 }
 
-// Event Listeners
 coins.forEach(coin => {
     coin.addEventListener("click", () => {
         coins.forEach(c => c.classList.remove("selected"));
