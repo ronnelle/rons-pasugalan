@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' wss://rons-pasugalan.onrender.com;">
+  <title>Ron's Pasugalan</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="start-screen" class="visible">
+    <h1>Ron's Pasugalan</h1>
+    <input id="name" placeholder="Enter your name" autocomplete="off" />
+    <button onclick="showCreate()">Create Game</button>
+    <button onclick="showJoin()">Join Game</button>
+    <div id="create-form" class="hidden">
+      <input id="pot-money" type="number" placeholder="Pot Money" autocomplete="off" />
+      <input id="initial-money" type="number" placeholder="Initial Player Money" autocomplete="off" />
+      <button onclick="createGame()">Create</button>
+    </div>
+    <div id="join-form" class="hidden">
+      <input id="passcode" placeholder="Enter Passcode" autocomplete="off" />
+      <button onclick="joinGame()">Join</button>
+    </div>
+    <p id="error"></p>
+  </div>
+
+  <div id="game-screen" class="hidden">
+    <button id="reset-game-btn" class="hidden" onclick="resetGame()">Reset Game</button>
+    <h2>Room: <span id="room-passcode"></span></h2>
+    <h3>Pot Money: <span id="pot-money-display">0</span></h3>
+    <div id="players"></div>
+    <div id="betting">
+      <h3>Place Your Bets</h3>
+      <div id="colors">
+        <div class="color-box red" onclick="bet('red')">Red: <span id="total-red">0</span></div>
+        <div class="color-box blue" onclick="bet('blue')">Blue: <span id="total-blue">0</span></div>
+        <div class="color-box green" onclick="bet('green')">Green: <span id="total-green">0</span></div>
+        <div class="color-box yellow" onclick="bet('yellow')">Yellow: <span id="total-yellow">0</span></div>
+        <div class="color-box white" onclick="bet('white')">White: <span id="total-white">0</span></div>
+        <div class="color-box pink" onclick="bet('pink')">Pink: <span id="total-pink">0</span></div>
+      </div>
+      <select id="denomination">
+        <option value="1">1</option>
+        <option value="5">5</option>
+        <option value="10">10</option>
+        <option value="20">20</option>
+        <option value="50">50</option>
+        <option value="100">100</option>
+        <option value="500">500</option>
+      </select>
+      <button onclick="resetBets()">Reset Bets</button>
+      <button onclick="setReady()">Ready</button>
+    </div>
+    <button id="roll-btn" class="hidden" onclick="rollCubes()">Roll Cubes</button>
+    <div id="cubes"></div>
+    <p id="game-over" class="hidden">Game Over!</p>
+    <div id="winner-overlay" class="overlay hidden"></div>
+    <div id="result-gif" class="gif-overlay hidden">
+      <img id="gif-image" src="" alt="Result GIF">
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
