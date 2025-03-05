@@ -1,19 +1,20 @@
 body {
   font-family: Arial, sans-serif;
-  background-color: #f0f4f8;
+  background-color: #000000; /* Black background like Twitter dark mode */
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
   margin: 0;
   font-weight: bold;
+  color: #ffffff; /* Default text white */
 }
 
 #start-screen, #game-screen {
-  background-color: #fff;
+  background-color: #1a1a1a; /* Dark gray for panels, like Twitter cards */
   padding: 20px;
   border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 8px rgba(255, 255, 255, 0.1); /* Subtle white shadow */
   text-align: center;
   width: 450px;
   position: absolute;
@@ -31,7 +32,7 @@ body {
 }
 
 h1, h2, h3 {
-  color: #6b7280;
+  color: #ffffff; /* White headers */
   font-weight: bold;
 }
 
@@ -40,18 +41,32 @@ input, select, button {
   padding: 8px;
   border: none;
   border-radius: 5px;
-  background-color: #e2e8f0;
-  color: #374151;
+  background-color: #333333; /* Dark gray input/button background */
+  color: #ffffff; /* White text */
   font-weight: bold;
 }
 
 button {
   cursor: pointer;
-  background-color: #a3bffa;
+  background-color: #1e90ff; /* Twitter blue for buttons */
 }
 
 button:hover {
-  background-color: #93c5fd;
+  background-color: #4682b4; /* Lighter blue on hover */
+}
+
+.ready-btn.not-ready {
+  background-color: #ff4d4d; /* Red when not ready */
+  color: #ffffff; /* White text */
+}
+
+.ready-btn.ready {
+  background-color: #4dff4d; /* Green when ready */
+  color: #000000; /* Black text for contrast */
+}
+
+#roll-btn {
+  background:rgb(131, 0, 238);
 }
 
 #colors {
@@ -73,7 +88,7 @@ button:hover {
   justify-content: center;
   border-radius: 10px;
   cursor: pointer;
-  color: #374151;
+  color: #ffffff; /* White text on color boxes */
   font-weight: bold;
   user-select: none;
   transition: transform 0.1s ease;
@@ -87,23 +102,23 @@ button:hover {
   transform: translateY(3px) scale(0.95);
 }
 
-.red { background-color: #fecaca; }
-.blue { background-color: #bfdbfe; }
-.green { background-color: #bbf7d0; }
-.yellow { background-color: #fef08a; }
-.white { background-color: #f3f4f6; }
-.pink { background-color: #f9a8d4; }
+.red { background-color: #ff4040; /* Brighter red for visibility */ }
+.blue { background-color: #1e90ff; /* Twitter blue */ }
+.green { background-color: #32cd32; /* Lime green */ }
+.yellow { background-color: #ffd700; /* Gold yellow */ }
+.white { background-color: #d3d3d3; /* Light gray, not pure white */ }
+.pink { background-color: #ff69b4; /* Hot pink */ }
 
 #players div {
   margin: 10px 0;
   padding: 5px;
-  background-color: #f9fafb;
+  background-color: #2a2a2a; /* Slightly lighter gray for player cards */
   border-radius: 5px;
   font-weight: bold;
 }
 
 #game-over {
-  color: #ef4444;
+  color: #ff4040; /* Red for game over */
   font-weight: bold;
 }
 
@@ -111,7 +126,7 @@ button:hover {
   display: flex;
   justify-content: center;
   gap: 10px;
-  margin-top: 10px;
+  margin-top: 5px;
 }
 
 .cube {
@@ -122,8 +137,8 @@ button:hover {
   justify-content: center;
   border-radius: 5px;
   font-weight: bold;
-  color: #374151;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  color: #ffffff; /* White text on cubes */
+  box-shadow: 0 2px 4px rgba(255, 255, 255, 0.2); /* White shadow */
   animation: spin 0.1s infinite;
 }
 
@@ -132,12 +147,12 @@ button:hover {
   100% { transform: rotateY(360deg); }
 }
 
-.cube.red { background-color: #fecaca; }
-.cube.blue { background-color: #bfdbfe; }
-.cube.green { background-color: #bbf7d0; }
-.cube.yellow { background-color: #fef08a; }
-.cube.white { background-color: #f3f4f6; }
-.cube.pink { background-color: #f9a8d4; }
+.cube.red { background-color: #ff4040; }
+.cube.blue { background-color: #1e90ff; }
+.cube.green { background-color: #32cd32; }
+.cube.yellow { background-color: #ffd700; }
+.cube.white { background-color: #d3d3d3; }
+.cube.pink { background-color: #ff69b4; }
 
 #cubes:not(:empty) .cube {
   animation: none;
@@ -145,11 +160,11 @@ button:hover {
 
 .overlay {
   position: absolute;
-  top: 20%; /* Move up from center */
+  top: 20%;
   left: 50%;
   transform: translateX(-50%);
-  background-color: rgba(0, 0, 0, 0.7);
-  color: white;
+  background-color: rgba(0, 0, 0, 0.8); /* Darker overlay */
+  color: #ffffff; /* White text */
   padding: 20px;
   border-radius: 10px;
   font-size: 20px;
@@ -159,7 +174,7 @@ button:hover {
 
 .gif-overlay {
   position: absolute;
-  top: 60%; /* Below the winners overlay */
+  top: 60%;
   left: 50%;
   transform: translateX(-50%);
   z-index: 11;

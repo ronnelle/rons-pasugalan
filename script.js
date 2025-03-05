@@ -1,7 +1,7 @@
-const socket = io({ transports: ['websocket'] }); // Auto-detects server URL
+const socket = io({ transports: ['websocket'] });
 let passcode = null;
 let myId = null;
-let initialMoney = null; // To track initial money for win/loss detection
+let initialMoney = null;
 
 const popSound = new Audio('audio/pop.wav');
 const tingSound = new Audio('audio/ting.wav');
@@ -26,7 +26,7 @@ function createGame() {
   const initialMoneyInput = document.getElementById('initial-money').value;
   if (name && potMoney && initialMoneyInput) {
     console.log('Creating game with:', { name, potMoney, initialMoney: initialMoneyInput });
-    initialMoney = parseInt(initialMoneyInput); // Store initial money
+    initialMoney = parseInt(initialMoneyInput);
     socket.emit('createGame', { name, potMoney, initialMoney });
   } else {
     document.getElementById('error').textContent = 'Please fill all fields';
@@ -55,7 +55,7 @@ socket.on('gameJoined', ({ passcode: p, players, potMoney, totalBets }) => {
   console.log('Game joined:', { passcode: p, players, potMoney });
   passcode = p;
   myId = socket.id;
-  initialMoney = players.find(p => p.id === myId).money; // Set initial money for joiner
+  initialMoney = players.find(p => p.id === myId).money;
   startGame(p, players, potMoney, totalBets);
 });
 
@@ -89,20 +89,39 @@ function updatePlayers(players, totalBets) {
   const playersDiv = document.getElementById('players');
   playersDiv.innerHTML = '';
   players.forEach(p => {
+    const betColors = {
+      red: '#ff0000',
+      blue: '#0000ff',
+      green: '#00ff00',
+      yellow: '#ffff00',
+      white: '#ffffff',
+      pink: '#ff69b4'
+    };
+    const betEntries = Object.entries(p.bets).map(([color, amount]) => 
+      `<span style="color: ${betColors[color]}">${color}: ${amount}</span>`
+    ).join(', ');
     const div = document.createElement('div');
     div.innerHTML = `
       ${p.name}: $${p.money} ${p.ready ? '<span style="color: green;">ready</span>' : ''}
       <button onclick="donate('${p.id}')">Give</button>
-      <div>Bets: ${Object.entries(p.bets).map(([c, a]) => `${c}: ${a}`).join(', ')}</div>
+      <div>Bets: ${betEntries || 'None'}</div>
     `;
     playersDiv.appendChild(div);
+    if (p.id === myId) {
+      document.getElementById('ready-btn').classList.toggle('ready', p.ready);
+      document.getElementById('ready-btn').classList.toggle('not-ready', !p.ready);
+    }
   });
-  document.getElementById('total-red').textContent = totalBets.red;
-  document.getElementById('total-blue').textContent = totalBets.blue;
-  document.getElementById('total-green').textContent = totalBets.green;
-  document.getElementById('total-yellow').textContent = totalBets.yellow;
-  document.getElementById('total-white').textContent = totalBets.white;
-  document.getElementById('total-pink').textContent = totalBets.pink;
+
+  const player = players.find(p => p.id === myId);
+  if (player) {
+    document.getElementById('total-red').textContent = player.bets.red || 0;
+    document.getElementById('total-blue').textContent = player.bets.blue || 0;
+    document.getElementById('total-green').textContent = player.bets.green || 0;
+    document.getElementById('total-yellow').textContent = player.bets.yellow || 0;
+    document.getElementById('total-white').textContent = player.bets.white || 0;
+    document.getElementById('total-pink').textContent = player.bets.pink || 0;
+  }
 }
 
 function bet(color) {
@@ -118,8 +137,8 @@ function resetBets() {
 }
 
 function setReady() {
-  console.log('Setting ready');
-  socket.emit('setReady', { passcode });
+  console.log('Toggling ready state');
+  socket.emit('toggleReady', { passcode });
 }
 
 function rollCubes() {
@@ -179,13 +198,13 @@ socket.on('rollResult', ({ cubes, players, potMoney, totalBets, winners }) => {
     const isWinner = winners && winners.some(w => w.name === player.name);
 
     if (player) {
-      console.log(`Player ${player.name} money: ${player.money}, initial: ${initialMoney}`);
-      if (isWinner && player.money > initialMoney) {
+      console.log(`Player ${player.name} money: ${player.money}, initial: ${initialMoney}, isWinner: ${isWinner}`);
+      if (isWinner) {
         gifImage.src = 'img/win.gif';
         gifOverlay.classList.remove('hidden');
         gifOverlay.classList.add('visible');
         console.log('Showing win.gif for', player.name);
-      } else if (!isWinner && player.money < initialMoney) {
+      } else if (player.money < initialMoney) {
         gifImage.src = 'img/lose.gif';
         gifOverlay.classList.remove('hidden');
         gifOverlay.classList.add('visible');

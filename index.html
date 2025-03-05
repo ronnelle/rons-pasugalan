@@ -29,6 +29,7 @@
     <button id="reset-game-btn" class="hidden" onclick="resetGame()">Reset Game</button>
     <h2>Room: <span id="room-passcode"></span></h2>
     <h3>Pot Money: <span id="pot-money-display">0</span></h3>
+    <div id="cubes"></div>
     <div id="players"></div>
     <div id="betting">
       <h3>Place Your Bets</h3>
@@ -50,10 +51,9 @@
         <option value="500">500</option>
       </select>
       <button onclick="resetBets()">Reset Bets</button>
-      <button onclick="setReady()">Ready</button>
+      <button id="ready-btn" class="ready-btn not-ready" onclick="setReady()">Ready</button>
     </div>
     <button id="roll-btn" class="hidden" onclick="rollCubes()">Roll Cubes</button>
-    <div id="cubes"></div>
     <p id="game-over" class="hidden">Game Over!</p>
     <div id="winner-overlay" class="overlay hidden"></div>
     <div id="result-gif" class="gif-overlay hidden">

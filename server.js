@@ -32,7 +32,7 @@ io.on('connection', (socket) => {
       creator: socket.id,
       players: [{ id: socket.id, name, money: parseInt(initialMoney), bets: {}, ready: false }],
       potMoney: parseInt(potMoney),
-      initialPotMoney: parseInt(potMoney), // Store original pot money
+      initialPotMoney: parseInt(potMoney),
       initialMoney: parseInt(initialMoney),
       rolled: false,
       cubes: [],
@@ -78,11 +78,14 @@ io.on('connection', (socket) => {
     io.to(passcode).emit('playerUpdate', { players: game.players, totalBets: game.totalBets });
   });
 
-  socket.on('setReady', ({ passcode }) => {
+  socket.on('toggleReady', ({ passcode }) => {
     const game = games[passcode];
     const player = game.players.find(p => p.id === socket.id);
-    player.ready = true;
-    io.to(passcode).emit('playerUpdate', { players: game.players, totalBets: game.totalBets });
+    if (player) {
+      player.ready = !player.ready; // Toggle ready state
+      console.log(`${player.name} toggled ready to ${player.ready}`);
+      io.to(passcode).emit('playerUpdate', { players: game.players, totalBets: game.totalBets });
+    }
   });
 
   socket.on('rollCubes', ({ passcode }) => {
@@ -153,7 +156,7 @@ io.on('connection', (socket) => {
         player.bets = {};
         player.ready = false;
       });
-      game.potMoney = game.initialPotMoney; // Use original pot money
+      game.potMoney = game.initialPotMoney;
       game.totalBets = { red: 0, blue: 0, green: 0, yellow: 0, white: 0, pink: 0 };
       game.cubes = [];
       game.rolled = false;
