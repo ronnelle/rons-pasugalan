@@ -82,7 +82,7 @@ io.on('connection', (socket) => {
     const game = games[passcode];
     const player = game.players.find(p => p.id === socket.id);
     if (player) {
-      player.ready = !player.ready; // Toggle ready state
+      player.ready = !player.ready;
       console.log(`${player.name} toggled ready to ${player.ready}`);
       io.to(passcode).emit('playerUpdate', { players: game.players, totalBets: game.totalBets });
     }
@@ -185,9 +185,19 @@ io.on('connection', (socket) => {
     console.log('Player disconnected:', socket.id);
     for (let passcode in games) {
       const game = games[passcode];
-      game.players = game.players.filter(p => p.id !== socket.id);
-      if (game.players.length === 0) delete games[passcode];
-      else io.to(passcode).emit('playerUpdate', { players: game.players, totalBets: game.totalBets });
+      if (socket.id === game.creator) {
+        console.log(`Creator left, deleting game: ${passcode}`);
+        io.to(passcode).emit('creatorLeft'); // Notify joiners
+        delete games[passcode]; // Delete the game
+      } else {
+        game.players = game.players.filter(p => p.id !== socket.id);
+        if (game.players.length === 0) {
+          console.log(`No players left, deleting game: ${passcode}`);
+          delete games[passcode];
+        } else {
+          io.to(passcode).emit('playerUpdate', { players: game.players, totalBets: game.totalBets });
+        }
+      }
     }
   });
 });

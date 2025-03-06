@@ -249,6 +249,16 @@ socket.on('gameReset', ({ players, potMoney, totalBets }) => {
   updatePlayers(players, totalBets);
 });
 
+socket.on('creatorLeft', () => {
+  console.log('Creator left, disconnecting...');
+  document.getElementById('game-screen').classList.remove('visible');
+  document.getElementById('game-screen').classList.add('hidden');
+  document.getElementById('start-screen').classList.remove('hidden');
+  document.getElementById('start-screen').classList.add('visible');
+  document.getElementById('error').textContent = 'Creator left the game. Room closed.';
+  passcode = null; // Reset passcode to prevent stale state
+});
+
 function donate(toPlayerId) {
   const amount = prompt('How much to donate?');
   if (amount) {
