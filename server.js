@@ -14,6 +14,10 @@ function generatePasscode() {
   return Math.random().toString(36).substr(2, 6).toUpperCase();
 }
 
+function generatePlayerId() {
+  return Math.random().toString(36).substr(2, 10); // Unique player ID
+}
+
 function rollCubes() {
   const colors = ['red', 'blue', 'green', 'yellow', 'white', 'pink'];
   return [
@@ -26,11 +30,12 @@ function rollCubes() {
 io.on('connection', (socket) => {
   console.log('A player connected:', socket.id);
 
-  socket.on('createGame', ({ name, potMoney, initialMoney }) => {
+  socket.on('createGame', ({ name, potMoney, initialMoney, playerId }) => {
     const passcode = generatePasscode();
+    const newPlayerId = playerId || generatePlayerId();
     games[passcode] = {
-      creator: socket.id,
-      players: [{ id: socket.id, name, money: parseInt(initialMoney), bets: {}, ready: false }],
+      creator: newPlayerId,
+      players: [{ id: newPlayerId, socketId: socket.id, name, money: parseInt(initialMoney), bets: {}, ready: false }],
       potMoney: parseInt(potMoney),
       initialPotMoney: parseInt(potMoney),
       initialMoney: parseInt(initialMoney),
@@ -40,17 +45,47 @@ io.on('connection', (socket) => {
     };
     socket.join(passcode);
     console.log('Game created:', passcode);
-    socket.emit('gameCreated', { passcode, players: games[passcode].players, potMoney: games[passcode].potMoney, totalBets: games[passcode].totalBets });
+    socket.emit('gameCreated', { 
+      passcode, 
+      playerId: newPlayerId, 
+      players: games[passcode].players, 
+      potMoney: games[passcode].potMoney, 
+      totalBets: games[passcode].totalBets 
+    });
   });
 
-  socket.on('joinGame', ({ name, passcode }) => {
+  socket.on('joinGame', ({ name, passcode, playerId }) => {
     const game = games[passcode];
     if (game) {
-      game.players.push({ id: socket.id, name, money: game.initialMoney, bets: {}, ready: false });
-      socket.join(passcode);
-      console.log(`${name} joined game:`, passcode);
-      io.to(passcode).emit('playerUpdate', { players: game.players, totalBets: game.totalBets });
-      socket.emit('gameJoined', { passcode, players: game.players, potMoney: game.potMoney, totalBets: game.totalBets });
+      const existingPlayer = game.players.find(p => p.id === playerId);
+      if (existingPlayer) {
+        // Reconnect existing player
+        existingPlayer.socketId = socket.id;
+        socket.join(passcode);
+        console.log(`${name} rejoined game:`, passcode);
+        io.to(passcode).emit('playerUpdate', { players: game.players, totalBets: game.totalBets });
+        socket.emit('gameJoined', { 
+          passcode, 
+          playerId, 
+          players: game.players, 
+          potMoney: game.potMoney, 
+          totalBets: game.totalBets 
+        });
+      } else {
+        // New player
+        const newPlayerId = playerId || generatePlayerId();
+        game.players.push({ id: newPlayerId, socketId: socket.id, name, money: game.initialMoney, bets: {}, ready: false });
+        socket.join(passcode);
+        console.log(`${name} joined game:`, passcode);
+        io.to(passcode).emit('playerUpdate', { players: game.players, totalBets: game.totalBets });
+        socket.emit('gameJoined', { 
+          passcode, 
+          playerId: newPlayerId, 
+          players: game.players, 
+          potMoney: game.potMoney, 
+          totalBets: game.totalBets 
+        });
+      }
     } else {
       socket.emit('error', 'Invalid passcode');
     }
@@ -58,8 +93,8 @@ io.on('connection', (socket) => {
 
   socket.on('placeBet', ({ passcode, color, amount }) => {
     const game = games[passcode];
-    const player = game.players.find(p => p.id === socket.id);
-    if (player.money >= amount) {
+    const player = game.players.find(p => p.socketId === socket.id);
+    if (player && player.money >= amount) {
       player.bets[color] = (player.bets[color] || 0) + amount;
       player.money -= amount;
       game.totalBets[color] += amount;
@@ -69,18 +104,20 @@ io.on('connection', (socket) => {
 
   socket.on('resetBets', ({ passcode }) => {
     const game = games[passcode];
-    const player = game.players.find(p => p.id === socket.id);
-    for (let color in player.bets) {
-      player.money += player.bets[color];
-      game.totalBets[color] -= player.bets[color];
+    const player = game.players.find(p => p.socketId === socket.id);
+    if (player) {
+      for (let color in player.bets) {
+        player.money += player.bets[color];
+        game.totalBets[color] -= player.bets[color];
+      }
+      player.bets = {};
+      io.to(passcode).emit('playerUpdate', { players: game.players, totalBets: game.totalBets });
     }
-    player.bets = {};
-    io.to(passcode).emit('playerUpdate', { players: game.players, totalBets: game.totalBets });
   });
 
   socket.on('toggleReady', ({ passcode }) => {
     const game = games[passcode];
-    const player = game.players.find(p => p.id === socket.id);
+    const player = game.players.find(p => p.socketId === socket.id);
     if (player) {
       player.ready = !player.ready;
       console.log(`${player.name} toggled ready to ${player.ready}`);
@@ -90,7 +127,8 @@ io.on('connection', (socket) => {
 
   socket.on('rollCubes', ({ passcode }) => {
     const game = games[passcode];
-    if (socket.id === game.creator && !game.rolled) {
+    const player = game.players.find(p => p.socketId === socket.id);
+    if (player && player.id === game.creator && !game.rolled) {
       console.log('Rolling cubes for:', passcode);
       game.cubes = rollCubes();
       game.rolled = true;
@@ -149,7 +187,8 @@ io.on('connection', (socket) => {
 
   socket.on('resetGame', ({ passcode }) => {
     const game = games[passcode];
-    if (socket.id === game.creator) {
+    const player = game.players.find(p => p.socketId === socket.id);
+    if (player && player.id === game.creator) {
       console.log('Resetting game:', passcode);
       game.players.forEach(player => {
         player.money = game.initialMoney;
@@ -172,9 +211,9 @@ io.on('connection', (socket) => {
 
   socket.on('donate', ({ passcode, toPlayerId, amount }) => {
     const game = games[passcode];
-    const fromPlayer = game.players.find(p => p.id === socket.id);
+    const fromPlayer = game.players.find(p => p.socketId === socket.id);
     const toPlayer = game.players.find(p => p.id === toPlayerId);
-    if (fromPlayer.money >= amount) {
+    if (fromPlayer && toPlayer && fromPlayer.money >= amount) {
       fromPlayer.money -= amount;
       toPlayer.money += amount;
       io.to(passcode).emit('playerUpdate', { players: game.players, totalBets: game.totalBets });
@@ -185,16 +224,14 @@ io.on('connection', (socket) => {
     console.log('Player disconnected:', socket.id);
     for (let passcode in games) {
       const game = games[passcode];
-      if (socket.id === game.creator) {
-        console.log(`Creator left, deleting game: ${passcode}`);
-        io.to(passcode).emit('creatorLeft'); // Notify joiners
-        delete games[passcode]; // Delete the game
-      } else {
-        game.players = game.players.filter(p => p.id !== socket.id);
-        if (game.players.length === 0) {
-          console.log(`No players left, deleting game: ${passcode}`);
+      const player = game.players.find(p => p.socketId === socket.id);
+      if (player) {
+        if (player.id === game.creator) {
+          console.log(`Creator left, deleting game: ${passcode}`);
+          io.to(passcode).emit('creatorLeft');
           delete games[passcode];
         } else {
+          player.socketId = null; // Mark as disconnected, keep player data
           io.to(passcode).emit('playerUpdate', { players: game.players, totalBets: game.totalBets });
         }
       }

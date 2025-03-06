@@ -1,6 +1,7 @@
 const socket = io({ transports: ['websocket'] });
 let passcode = null;
 let myId = null;
+let myPlayerId = localStorage.getItem('playerId') || null; // Persistent player ID
 let initialMoney = null;
 
 const popSound = new Audio('audio/pop.wav');
@@ -27,7 +28,7 @@ function createGame() {
   if (name && potMoney && initialMoneyInput) {
     console.log('Creating game with:', { name, potMoney, initialMoney: initialMoneyInput });
     initialMoney = parseInt(initialMoneyInput);
-    socket.emit('createGame', { name, potMoney, initialMoney });
+    socket.emit('createGame', { name, potMoney, initialMoney, playerId: myPlayerId });
   } else {
     document.getElementById('error').textContent = 'Please fill all fields';
   }
@@ -38,24 +39,27 @@ function joinGame() {
   const inputPasscode = document.getElementById('passcode').value.toUpperCase();
   if (name && inputPasscode) {
     console.log('Joining game with:', { name, passcode: inputPasscode });
-    socket.emit('joinGame', { name, passcode: inputPasscode });
+    socket.emit('joinGame', { name, passcode: inputPasscode, playerId: myPlayerId });
   } else {
     document.getElementById('error').textContent = 'Please enter name and passcode';
   }
 }
 
-socket.on('gameCreated', ({ passcode: p, players, potMoney, totalBets }) => {
-  console.log('Game created:', { passcode: p, players, potMoney });
+socket.on('gameCreated', ({ passcode: p, playerId, players, potMoney, totalBets }) => {
+  console.log('Game created:', { passcode: p, playerId, players, potMoney });
   passcode = p;
   myId = socket.id;
+  myPlayerId = playerId;
+  localStorage.setItem('playerId', myPlayerId); // Store player ID
   startGame(p, players, potMoney, totalBets);
 });
 
-socket.on('gameJoined', ({ passcode: p, players, potMoney, totalBets }) => {
-  console.log('Game joined:', { passcode: p, players, potMoney });
+socket.on('gameJoined', ({ passcode: p, playerId, players, potMoney, totalBets }) => {
+  console.log('Game joined:', { passcode: p, playerId, players, potMoney });
   passcode = p;
   myId = socket.id;
-  initialMoney = players.find(p => p.id === myId).money;
+  myPlayerId = playerId;
+  localStorage.setItem('playerId', myPlayerId); // Store player ID
   startGame(p, players, potMoney, totalBets);
 });
 
@@ -73,7 +77,7 @@ function startGame(p, players, potMoney, totalBets) {
   document.getElementById('room-passcode').textContent = p;
   document.getElementById('pot-money-display').textContent = potMoney || 0;
   updatePlayers(players, totalBets);
-  if (socket.id === players[0].id) {
+  if (players.find(p => p.id === myPlayerId).id === players[0].id) {
     console.log('I am the creator, showing roll and reset buttons');
     document.getElementById('roll-btn').classList.remove('hidden');
     document.getElementById('reset-game-btn').classList.remove('hidden');
@@ -107,13 +111,13 @@ function updatePlayers(players, totalBets) {
       <div>Bets: ${betEntries || 'None'}</div>
     `;
     playersDiv.appendChild(div);
-    if (p.id === myId) {
+    if (p.id === myPlayerId) {
       document.getElementById('ready-btn').classList.toggle('ready', p.ready);
       document.getElementById('ready-btn').classList.toggle('not-ready', !p.ready);
     }
   });
 
-  const player = players.find(p => p.id === myId);
+  const player = players.find(p => p.id === myPlayerId);
   if (player) {
     document.getElementById('total-red').textContent = player.bets.red || 0;
     document.getElementById('total-blue').textContent = player.bets.blue || 0;
@@ -191,10 +195,10 @@ socket.on('rollResult', ({ cubes, players, potMoney, totalBets, winners }) => {
     updatePlayers(players, totalBets);
     tingSound.play();
 
-    console.log('Processing GIFs and winners for player ID:', myId);
+    console.log('Processing GIFs and winners for player ID:', myPlayerId);
     const gifOverlay = document.getElementById('result-gif');
     const gifImage = document.getElementById('gif-image');
-    const player = players.find(p => p.id === myId);
+    const player = players.find(p => p.id === myPlayerId);
     const isWinner = winners && winners.some(w => w.name === player.name);
 
     if (player) {
@@ -256,7 +260,7 @@ socket.on('creatorLeft', () => {
   document.getElementById('start-screen').classList.remove('hidden');
   document.getElementById('start-screen').classList.add('visible');
   document.getElementById('error').textContent = 'Creator left the game. Room closed.';
-  passcode = null; // Reset passcode to prevent stale state
+  passcode = null;
 });
 
 function donate(toPlayerId) {
