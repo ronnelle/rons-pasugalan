@@ -1,26 +1,28 @@
 body {
   font-family: Arial, sans-serif;
-  background-color: #000000; /* Black background like Twitter dark mode */
+  background-color: #000000;
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
   margin: 0;
   font-weight: bold;
-  color: #ffffff; /* Default text white */
+  color: #ffffff;
 }
 
 #start-screen, #game-screen {
-  background-color: #1a1a1a; /* Dark gray for panels, like Twitter cards */
+  background-color: #1a1a1a;
   padding: 20px;
   border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(255, 255, 255, 0.1); /* Subtle white shadow */
+  box-shadow: 0 4px 8px rgba(255, 255, 255, 0.1);
   text-align: center;
   width: 450px;
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  max-height: 90vh; /* Limit height */
+  overflow-y: auto; /* Enable vertical scrolling */
 }
 
 .visible {
@@ -32,48 +34,46 @@ body {
 }
 
 h1, h2, h3 {
-  color: #ffffff; /* White headers */
+  color: #ffffff;
   font-weight: bold;
+  margin: 5px 0; /* Reduce spacing */
 }
 
 input, select, button {
   margin: 5px;
-  padding: 8px;
+  padding: 6px; /* Smaller padding */
   border: none;
   border-radius: 5px;
-  background-color: #333333; /* Dark gray input/button background */
-  color: #ffffff; /* White text */
+  background-color: #333333;
+  color: #ffffff;
   font-weight: bold;
+  font-size: 12px; /* Smaller font */
 }
 
 button {
   cursor: pointer;
-  background-color: #1e90ff; /* Twitter blue for buttons */
+  background-color: #1e90ff;
 }
 
 button:hover {
-  background-color: #4682b4; /* Lighter blue on hover */
+  background-color: #4682b4;
 }
 
 .ready-btn.not-ready {
-  background-color: #ff4d4d; /* Red when not ready */
-  color: #ffffff; /* White text */
+  background-color: #ff4d4d;
+  color: #ffffff;
 }
 
 .ready-btn.ready {
-  background-color: #4dff4d; /* Green when ready */
-  color: #000000; /* Black text for contrast */
-}
-
-#roll-btn {
-  background:rgb(131, 0, 238);
+  background-color: #4dff4d;
+  color: #000000;
 }
 
 #colors {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 10px;
+  gap: 8px; /* Smaller gap */
   margin-bottom: 10px;
   width: 300px;
   margin-left: auto;
@@ -81,15 +81,16 @@ button:hover {
 }
 
 .color-box {
-  width: 80px;
-  height: 80px;
+  width: 60px; /* Smaller boxes */
+  height: 60px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 10px;
+  border-radius: 8px;
   cursor: pointer;
-  color: #ffffff; /* White text on color boxes */
+  color: #ffffff;
   font-weight: bold;
+  font-size: 12px; /* Smaller font */
   user-select: none;
   transition: transform 0.1s ease;
 }
@@ -102,43 +103,50 @@ button:hover {
   transform: translateY(3px) scale(0.95);
 }
 
-.red { background-color: #ff4040; /* Brighter red for visibility */ }
-.blue { background-color: #1e90ff; /* Twitter blue */ }
-.green { background-color: #32cd32; /* Lime green */ }
-.yellow { background-color: #ffd700; /* Gold yellow */ }
-.white { background-color: #d3d3d3; /* Light gray, not pure white */ }
-.pink { background-color: #ff69b4; /* Hot pink */ }
+.red { background-color: #ff4040; }
+.blue { background-color: #1e90ff; }
+.green { background-color: #32cd32; }
+.yellow { background-color: #ffd700; }
+.white { background-color: #d3d3d3; }
+.pink { background-color: #ff69b4; }
+
+#players {
+  margin-top: 10px;
+}
 
 #players div {
-  margin: 10px 0;
-  padding: 5px;
-  background-color: #2a2a2a; /* Slightly lighter gray for player cards */
+  margin: 5px 0; /* Smaller margin */
+  padding: 3px; /* Smaller padding */
+  background-color: #2a2a2a;
   border-radius: 5px;
   font-weight: bold;
+  font-size: 10px; /* Smaller font */
 }
 
 #game-over {
-  color: #ff4040; /* Red for game over */
+  color: #ff4040;
   font-weight: bold;
+  font-size: 14px; /* Slightly smaller */
 }
 
 #cubes {
   display: flex;
   justify-content: center;
-  gap: 10px;
+  gap: 8px; /* Smaller gap */
   margin-top: 5px;
 }
 
 .cube {
-  width: 50px;
-  height: 50px;
+  width: 40px; /* Smaller cubes */
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 5px;
   font-weight: bold;
-  color: #ffffff; /* White text on cubes */
-  box-shadow: 0 2px 4px rgba(255, 255, 255, 0.2); /* White shadow */
+  color: #ffffff;
+  font-size: 12px; /* Smaller font */
+  box-shadow: 0 2px 4px rgba(255, 255, 255, 0.2);
   animation: spin 0.1s infinite;
 }
 
@@ -163,11 +171,11 @@ button:hover {
   top: 20%;
   left: 50%;
   transform: translateX(-50%);
-  background-color: rgba(0, 0, 0, 0.8); /* Darker overlay */
-  color: #ffffff; /* White text */
-  padding: 20px;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: #ffffff;
+  padding: 15px; /* Slightly smaller */
   border-radius: 10px;
-  font-size: 20px;
+  font-size: 16px; /* Smaller font */
   text-align: center;
   z-index: 10;
 }
@@ -181,7 +189,7 @@ button:hover {
 }
 
 .gif-overlay img {
-  max-width: 300px;
-  max-height: 300px;
+  max-width: 250px; /* Slightly smaller */
+  max-height: 250px;
   border-radius: 10px;
 }
